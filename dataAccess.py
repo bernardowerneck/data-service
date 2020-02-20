@@ -33,6 +33,23 @@ def persist_problem():
     problem = request.json
     app.logger.info(problem)
     print(problem, flush=True)
+
+    newProblemNode = gdb.nodes.create()
+    newProblemNode['subject'] = problem['subject']
+    newProblemNode.labels.add("Problem")
+    
+    for content in problem['contents']:
+        contentNode = gdb.nodes.create()
+        contentNode.labels.add('Content')
+        contentNode.properties = content
+        contentNode.relationships.create('BelongsTo', newProblemNode)
+
+    query = ("MATCH (user:User {name: 'testUser'}) return user")
+    results = gdb.query(query, returns = Node)
+    userNode = results[0][0]
+
+    userNode.relationships.create("Wrote", newProblemNode)
+
     return "oioioi"
 
 
